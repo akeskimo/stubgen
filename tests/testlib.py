@@ -6,6 +6,7 @@ import os
 import sys
 
 def rootpath(relpath):
-    return os.path.join(os.path.dirname(__file__), relpath)
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), relpath))
 
-sys.path.insert(1, rootpath("../"))
+for p in ("../", "../stubs",):
+    sys.path.insert(1, rootpath(p))

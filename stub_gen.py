@@ -7,24 +7,32 @@ import json
 version = 0
 
 def write_class(fh, data, class_name, indent=0):
-    fh.write("\n")
-    fh.write(indent * " " + "class " + class_name + ":\n")
+    lines = []
+    lines.append("\n")
+    lines.append(indent * " " + "class " + class_name + ":\n")
 
-    def write_property(fh, key, value, indent):
+    def write_property(fh, key, value, indent, properties):
         class_name = value.__class__.__name__
         property_type = value.__class__.__name__
         if type(value) == dict:
             class_name = key[0].upper() + key[1:]
             property_type = class_name
-            write_class(fh, value, class_name, indent=indent)
-        fh.write(indent * " " + "self." + key + ": " + property_type + "\n")
+            write_class(fh, value, class_name, indent=0)
+        lines.append(indent * " " + "self." + key + ": " + property_type + " = " + key + "\n")
+        properties.append(key + ": " + property_type + "=None")
+        return properties
 
     indent += 4
-    fh.write(indent * " " + "def __init__(self):\n")
+    constr_id = "<<" + class_name + ">>"
+    lines.append(indent * " " + "def __init__(self, " + constr_id + "):\n")
+    properties = []
     for key, value in data.items():
-        write_property(fh, key, value, indent + 4)
+        properties = write_property(fh, key, value, indent + 4, properties)
+    lines.append("\n")
 
-    fh.write("\n")
+    for idx, value in enumerate(lines):
+        fh.write(value.replace(constr_id, ", ".join(properties)))
+
 
 if __name__ == "__main__":
     import argparse, sys
