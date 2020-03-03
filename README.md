@@ -1,5 +1,5 @@
-# stubgen
-Python stub generator for dumping dictionary into class definition files recognized by pylint.
+# Python Stub Generator
+Python stub generator for dumping input stream into class definition files recognized by pylint.
 
 ## Installing
 To install python packages:
