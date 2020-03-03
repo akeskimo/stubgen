@@ -23,7 +23,7 @@ def _write_class(fh, data, class_name, indent=0):
         if type(value) == dict:
             class_name = key[0].upper() + key[1:]
             property_type = class_name
-            write_class(fh, value, class_name, indent=0)
+            _write_class(fh, value, class_name, indent=0)
         lines.append(indent * " " + "self." + key + ": " + property_type + " = " + key + "\n")
         properties.append(key + ": " + property_type + "=None")
         return properties

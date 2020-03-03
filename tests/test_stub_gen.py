@@ -7,6 +7,7 @@ import stub_gen
 import tempfile
 import change
 import json
+from ddt import ddt, data, unpack
 
 
 class MockIOStream:
@@ -23,24 +24,63 @@ class MockIOStream:
         return self._data
 
 
+@ddt
 class TestStubGen(unittest.TestCase):
-    def test_write_class(self):
-        data = {
-            "field1": 1,
-            "field2": "2",
-            "field3": "value"
-        }
-        exp_value = """
+    @classmethod
+    def setUpClass(cls):
+        cls.maxDiff = None
+
+    @data(
+        ({
+                "field1": 1,
+                "field2": "2",
+                "field3": "value",
+                "field4": False
+        },"""
 class TestClass:
-    def __init__(self, field1: int=None, field2: str=None, field3: str=None):
+    def __init__(self, field1: int=None, field2: str=None, field3: str=None, field4: bool=None):
         self.field1: int = field1
         self.field2: str = field2
         self.field3: str = field3
+        self.field4: bool = field4
 
-"""
+"""),
+        ({
+            "value": 1,
+            "nested_value": {
+                "field1": "11",
+                "field2": "12",
+                "other": {
+                    "f1": 1,
+                    "f2": 2
+                }
+            }
+        },"""
+class Other:
+    def __init__(self, f1: int=None, f2: int=None):
+        self.f1: int = f1
+        self.f2: int = f2
+
+
+class Nested_value:
+    def __init__(self, field1: str=None, field2: str=None, other: Other=None):
+        self.field1: str = field1
+        self.field2: str = field2
+        self.other: Other = other
+
+
+class TestClass:
+    def __init__(self, value: int=None, nested_value: Nested_value=None):
+        self.value: int = value
+        self.nested_value: Nested_value = nested_value
+
+"""))
+    @unpack
+    def test_write_class(self, input, expected):
         out = MockIOStream()
-        stub_gen._write_class(out, data, "TestClass")
-        self.assertEqual(exp_value, out.getvalue())
+        stub_gen._write_class(out, input, "TestClass")
+        self.assertEqual(expected, out.getvalue())
+
 
     def test_stub_gen_cli(self):
         data = b"""{
